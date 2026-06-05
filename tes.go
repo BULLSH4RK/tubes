@@ -120,7 +120,7 @@ func tampildata(n int, data tabPlayer) {
             fmt.Printf("Menang   : %d\n", data[i].menang)
             fmt.Printf("Kalah    : %d\n", data[i].kalah)
             fmt.Printf("Winrate  : %d %%\n", data[i].wr)
-            fmt.Printf("Rank     : %d\n", data[i].rank)
+            fmt.Printf("Rank     : %s\n", data[i].rank)
             fmt.Println("=================================")
             ditemukan = true
             break
