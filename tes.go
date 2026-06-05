@@ -164,14 +164,18 @@ func editwr(n int, data *tabPlayer) {
             fmt.Println("3. mengubah kedua-duanya")
             fmt.Print("masukkan pilihan (1/2/3): ")
             fmt.Scan(&pilihan)
-
+            var kosong ,kosong2 int
             switch pilihan {
             case 1:
                 fmt.Print("masukkan jumlah menang baru: ")
-                fmt.Scan(&data[i].menang)
-                if data[i].menang < 0 {
+                fmt.Scan(&kosong)
+                if kosong < 0 {
                     fmt.Println("ERROR: jumlah menang tidak boleh negatif!")
                     data[i].menang = 0
+                }else if kosong < data[i].menang {
+                    fmt.Println("ERROR: jumlah menang baru tidak boleh lebih kecil dari jumlah menang saat ini!")
+                    fmt.Println("jumlah menang saat ini: ", data[i].menang)
+                    data[i].menang = data[i].menang
                 }
             case 2:
                 fmt.Print("masukkan jumlah kalah baru: ")
@@ -179,19 +183,41 @@ func editwr(n int, data *tabPlayer) {
                 if data[i].kalah < 0 {
                     fmt.Println("ERROR: jumlah kalah tidak boleh negatif!")
                     data[i].kalah = 0
+                }else if data[i].kalah < data[i].kalah {
+                    fmt.Println("ERROR: jumlah kalah baru tidak boleh lebih kecil dari jumlah kalah saat ini!")
+                    fmt.Println("jumlah kalah saat ini: ", data[i].kalah)
+                    data[i].kalah = data[i].kalah
                 }
             case 3:
                 fmt.Print("masukkan jumlah menang baru: ")
-                fmt.Scan(&data[i].menang)
+                fmt.Scan(&kosong)
                 fmt.Print("masukkan jumlah kalah baru: ")
-                fmt.Scan(&data[i].kalah)
-                if data[i].menang < 0 {
+                fmt.Scan(&kosong2)
+
+                fmt.Println()
+
+                if kosong < 0 {
                     fmt.Println("ERROR: jumlah menang tidak boleh negatif!")
                     data[i].menang = 0
+                }else if kosong < data[i].menang {
+                    fmt.Println("ERROR: jumlah menang baru tidak boleh lebih kecil dari jumlah menang saat ini!")
+                    fmt.Println("jumlah menang saat ini: ", data[i].menang)
+                    data[i].menang = data[i].menang
+                }else {
+                    data[i].menang = kosong
                 }
-                if data[i].kalah < 0 {
+
+                fmt.Println()
+
+                if kosong2 < 0 {
                     fmt.Println("ERROR: jumlah kalah tidak boleh negatif!")
                     data[i].kalah = 0
+                }else if kosong2 < data[i].kalah {
+                    fmt.Println("ERROR: jumlah kalah baru tidak boleh lebih kecil dari jumlah kalah saat ini!")
+                    fmt.Println("jumlah kalah saat ini: ", data[i].kalah)
+                    data[i].kalah = data[i].kalah
+                }else {
+                    data[i].kalah = kosong2
                 }
             default:
                 fmt.Println("ERROR: pilihan yang dimasukkan tidak sesuai!")
