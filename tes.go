@@ -5,7 +5,7 @@ import "fmt"
 const NMAX int = 10000
 
 type player struct {
-    nick               string
+    nick,rank            string
     id, menang, kalah, wr int
 }
 
@@ -120,6 +120,7 @@ func tampildata(n int, data tabPlayer) {
             fmt.Printf("Menang   : %d\n", data[i].menang)
             fmt.Printf("Kalah    : %d\n", data[i].kalah)
             fmt.Printf("Winrate  : %d %%\n", data[i].wr)
+            fmt.Printf("Rank     : %d\n", data[i].rank)
             fmt.Println("=================================")
             ditemukan = true
             break
@@ -154,6 +155,7 @@ func editwr(n int, data *tabPlayer) {
             fmt.Printf("Menang saat ini: %d\n", data[i].menang)
             fmt.Printf("Kalah saat ini : %d\n", data[i].kalah)
             fmt.Printf("Winrate saat ini: %d %%\n", data[i].wr)
+            fmt.Printf("Rank saat ini   : %s\n", data[i].rank)
 
             var pilihan int
             fmt.Println("\n========== APA YANG INGIN DIUBAH ==========")
@@ -196,6 +198,20 @@ func editwr(n int, data *tabPlayer) {
                 return
             }
 
+            rank := (data[i].menang * 3) - (data[i].kalah * 2)
+            if rank >= 250 {
+                data[i].rank = "diamond"
+            } else if rank >= 200 {
+                data[i].rank = "platinum"
+            } else if rank >= 150 {
+                data[i].rank = "gold"
+            } else if rank >= 100 {
+                data[i].rank = "silver"
+            } else if rank >= 50 {
+                data[i].rank = "bronze"
+            } else {
+                data[i].rank = "unranked"
+            }
             // Hitung winrate
             total := data[i].menang + data[i].kalah
             if total > 0 {
@@ -206,6 +222,7 @@ func editwr(n int, data *tabPlayer) {
 
             fmt.Println("\n========== UPDATE BERHASIL ==========")
             fmt.Printf("Winrate baru: %d %%\n", data[i].wr)
+            fmt.Printf("Rank baru: %s\n", data[i].rank)
             fmt.Println("Data berhasil diupdate!")
             
             // Tampilkan data terbaru
@@ -215,6 +232,7 @@ func editwr(n int, data *tabPlayer) {
             fmt.Printf("Menang: %d\n", data[i].menang)
             fmt.Printf("Kalah: %d\n", data[i].kalah)
             fmt.Printf("Winrate: %d %%\n", data[i].wr)
+            fmt.Printf("Rank: %s\n", data[i].rank)
             fmt.Println("=================================")
             break
         }
@@ -251,11 +269,11 @@ func tampilsemua(n int, data tabPlayer) {
     }
     
     // Tampilkan data
-    fmt.Println("No\tID\tNickname\tMenang\tKalah\tWinrate")
+    fmt.Println("No\tID\tNickname\tMenang\tKalah\tWinrate\tRank")
     fmt.Println("==========================================================")
     for i := 0; i < n; i++ {
-        fmt.Printf("%d || \t |id| %d || \t |nick| %s || \t |menang| %d|| \t |kalah| %d || \t |wr| %d%%\n ", 
-            i+1, temp[i].id, temp[i].nick, temp[i].menang, temp[i].kalah, temp[i].wr)
+        fmt.Printf("%d || \t |id| %d || \t |nick| %s || \t |menang| %d|| \t |kalah| %d || \t |wr| %d%% || \t |rank| %s\n ", 
+            i+1, temp[i].id, temp[i].nick, temp[i].menang, temp[i].kalah, temp[i].wr, temp[i].rank)
     }
     fmt.Println("==========================================================")
 }
