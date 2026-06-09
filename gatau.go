@@ -45,6 +45,14 @@ func main() {
         } else if pilih == 3 {
             tampildata(n, data)
         } else if pilih == 4 {
+            // Urutkan data berdasarkan id sebelum ditampilkan
+            for i := 0; i < n-1; i++ {
+                for j := i + 1; j < n; j++ {
+                    if data[i].id > data[j].id {
+                        data[i], data[j] = data[j], data[i]
+                    }
+                }
+            }
             tampilsemua(n, data)
         } else {
             fmt.Println("pilihan tidak valid")
@@ -78,7 +86,7 @@ func tambahdata(data *tabPlayer, n int) int {
     for i := n; i < n+tambah; i++ {
         fmt.Printf("data ke-%d: ", i+1)
         fmt.Scan(&data[i].nick, &data[i].id)
-        
+
         // Cek duplikasi id
         for j := 0; j < i; j++ {
             if data[j].id == data[i].id {
@@ -87,19 +95,45 @@ func tambahdata(data *tabPlayer, n int) int {
                 break
             }
         }
-        
+
         data[i].menang = 0
         data[i].kalah = 0
         data[i].wr = 0
+    }
+
+    // Urutkan data berdasarkan id setelah menambah data
+    for i := 0; i < n+tambah-1; i++ {
+        for j := i + 1; j < n+tambah; j++ {
+            if data[i].id > data[j].id {
+                data[i], data[j] = data[j], data[i]
+            }
+        }
     }
 
     fmt.Printf("\n========== BERHASIL MENAMBAH %d DATA ===========\n", tambah)
     return n + tambah
 }
 
+// Binary search untuk mencari index player berdasarkan id
+func binarySearch(data tabPlayer, n int, id int) int {
+    left := 0
+    right := n - 1
+
+    for left <= right {
+        mid := (left + right) / 2
+        if data[mid].id == id {
+            return mid
+        } else if data[mid].id < id {
+            left = mid + 1
+        } else {
+            right = mid - 1
+        }
+    }
+    return -1
+}
+
 func tampildata(n int, data tabPlayer) {
     var dicari int
-    var ditemukan bool = false
 
     if n == 0 {
         fmt.Println("\n========== ERROR ==========")
@@ -111,29 +145,25 @@ func tampildata(n int, data tabPlayer) {
     fmt.Print("masukkan id player yang mau dicari: ")
     fmt.Scan(&dicari)
 
-    for i := 0; i < n; i++ {
-        if dicari == data[i].id {
-            fmt.Println("\n========== DATA PLAYER ==========")
-            fmt.Printf("Nickname : %s\n", data[i].nick)
-            fmt.Printf("ID       : %d\n", data[i].id)
-            fmt.Printf("Menang   : %d\n", data[i].menang)
-            fmt.Printf("Kalah    : %d\n", data[i].kalah)
-            fmt.Printf("Winrate  : %d %%\n", data[i].wr)
-            fmt.Printf("Rank     : %s\n", data[i].rank)
-            fmt.Println("=================================")
-            ditemukan = true
-            break
-        }
-    }
+    // Gunakan binary search
+    idx := binarySearch(data, n, dicari)
 
-    if !ditemukan {
+    if idx != -1 {
+        fmt.Println("\n========== DATA PLAYER ==========")
+        fmt.Printf("Nickname : %s\n", data[idx].nick)
+        fmt.Printf("ID       : %d\n", data[idx].id)
+        fmt.Printf("Menang   : %d\n", data[idx].menang)
+        fmt.Printf("Kalah    : %d\n", data[idx].kalah)
+        fmt.Printf("Winrate  : %d %%\n", data[idx].wr)
+        fmt.Printf("Rank     : %s\n", data[idx].rank)
+        fmt.Println("=================================")
+    } else {
         fmt.Printf("\nplayer dengan id %d tidak ditemukan\n", dicari)
     }
 }
 
 func editwr(n int, data *tabPlayer) {
     var dicari int
-    var ditemukan bool = false
 
     if n == 0 {
         fmt.Println("\n========== ERROR ==========")
@@ -145,127 +175,116 @@ func editwr(n int, data *tabPlayer) {
     fmt.Print("masukkan id player yang mau dicari: ")
     fmt.Scan(&dicari)
 
-    for i := 0; i < n; i++ {
-        if dicari == data[i].id {
-            ditemukan = true
-            fmt.Println("\n========== DATA PLAYER DITEMUKAN ==========")
-            fmt.Printf("Nickname       : %s\n", data[i].nick)
-            fmt.Printf("ID             : %d\n", data[i].id)
-            fmt.Printf("Menang saat ini: %d\n", data[i].menang)
-            fmt.Printf("Kalah saat ini : %d\n", data[i].kalah)
-            fmt.Printf("Winrate saat ini: %d %%\n", data[i].wr)
-            fmt.Printf("Rank saat ini   : %s\n", data[i].rank)
+    // Gunakan binary search
+    idx := binarySearch(*data, n, dicari)
 
-            var pilihan int
-            fmt.Println("\n========== APA YANG INGIN DIUBAH ==========")
-            fmt.Println("1. mengubah jumlah menang")
-            fmt.Println("2. mengubah jumlah kalah")
-            fmt.Println("3. mengubah kedua-duanya")
-            fmt.Print("masukkan pilihan (1/2/3): ")
-            fmt.Scan(&pilihan)
-            var kosong, kosong2 int
-            
-            if pilihan == 1 {
-                fmt.Print("masukkan jumlah menang baru: ")
-                fmt.Scan(&kosong)
-                if kosong < 0 {
-                    fmt.Println("ERROR: jumlah menang tidak boleh negatif!")
-                    data[i].menang = 0
-                } else if kosong < data[i].menang {
-                    fmt.Println("ERROR: jumlah menang baru tidak boleh lebih kecil dari jumlah menang saat ini!")
-                    fmt.Println("jumlah menang saat ini: ", data[i].menang)
-                    data[i].menang = data[i].menang
-                } else {
-                    data[i].menang = kosong
-                }
-            } else if pilihan == 2 {
-                fmt.Print("masukkan jumlah kalah baru: ")
-                fmt.Scan(&data[i].kalah)
-                if data[i].kalah < 0 {
-                    fmt.Println("ERROR: jumlah kalah tidak boleh negatif!")
-                    data[i].kalah = 0
-                } else if data[i].kalah < data[i].kalah {
-                    fmt.Println("ERROR: jumlah kalah baru tidak boleh lebih kecil dari jumlah kalah saat ini!")
-                    fmt.Println("jumlah kalah saat ini: ", data[i].kalah)
-                    data[i].kalah = data[i].kalah
-                }
-            } else if pilihan == 3 {
-                fmt.Print("masukkan jumlah menang baru: ")
-                fmt.Scan(&kosong)
-                fmt.Print("masukkan jumlah kalah baru: ")
-                fmt.Scan(&kosong2)
+    if idx != -1 {
+        fmt.Println("\n========== DATA PLAYER DITEMUKAN ==========")
+        fmt.Printf("Nickname       : %s\n", data[idx].nick)
+        fmt.Printf("ID             : %d\n", data[idx].id)
+        fmt.Printf("Menang saat ini: %d\n", data[idx].menang)
+        fmt.Printf("Kalah saat ini : %d\n", data[idx].kalah)
+        fmt.Printf("Winrate saat ini: %d %%\n", data[idx].wr)
+        fmt.Printf("Rank saat ini   : %s\n", data[idx].rank)
 
-                fmt.Println()
+        var pilihan int
+        fmt.Println("\n========== APA YANG INGIN DIUBAH ==========")
+        fmt.Println("1. mengubah jumlah menang")
+        fmt.Println("2. mengubah jumlah kalah")
+        fmt.Println("3. mengubah kedua-duanya")
+        fmt.Print("masukkan pilihan (1/2/3): ")
+        fmt.Scan(&pilihan)
+        var kosong, kosong2 int
 
-                if kosong < 0 {
-                    fmt.Println("ERROR: jumlah menang tidak boleh negatif!")
-                    data[i].menang = 0
-                } else if kosong < data[i].menang {
-                    fmt.Println("ERROR: jumlah menang baru tidak boleh lebih kecil dari jumlah menang saat ini!")
-                    fmt.Println("jumlah menang saat ini: ", data[i].menang)
-                    data[i].menang = data[i].menang
-                } else {
-                    data[i].menang = kosong
-                }
-
-                fmt.Println()
-
-                if kosong2 < 0 {
-                    fmt.Println("ERROR: jumlah kalah tidak boleh negatif!")
-                    data[i].kalah = 0
-                } else if kosong2 < data[i].kalah {
-                    fmt.Println("ERROR: jumlah kalah baru tidak boleh lebih kecil dari jumlah kalah saat ini!")
-                    fmt.Println("jumlah kalah saat ini: ", data[i].kalah)
-                    data[i].kalah = data[i].kalah
-                } else {
-                    data[i].kalah = kosong2
-                }
+        if pilihan == 1 {
+            fmt.Print("masukkan jumlah menang baru: ")
+            fmt.Scan(&kosong)
+            if kosong < 0 {
+                fmt.Println("ERROR: jumlah menang tidak boleh negatif!")
+                data[idx].menang = 0
+            } else if kosong < data[idx].menang {
+                fmt.Println("ERROR: jumlah menang baru tidak boleh lebih kecil dari jumlah menang saat ini!")
+                fmt.Println("jumlah menang saat ini: ", data[idx].menang)
+                // Tidak mengubah nilai
             } else {
-                fmt.Println("ERROR: pilihan yang dimasukkan tidak sesuai!")
-                return
+                data[idx].menang = kosong
+            }
+        } else if pilihan == 2 {
+            fmt.Print("masukkan jumlah kalah baru: ")
+            fmt.Scan(&data[idx].kalah)
+            if data[idx].kalah < 0 {
+                fmt.Println("ERROR: jumlah kalah tidak boleh negatif!")
+                data[idx].kalah = 0
+            }
+        } else if pilihan == 3 {
+            fmt.Print("masukkan jumlah menang baru: ")
+            fmt.Scan(&kosong)
+            fmt.Print("masukkan jumlah kalah baru: ")
+            fmt.Scan(&kosong2)
+
+            fmt.Println()
+
+            if kosong < 0 {
+                fmt.Println("ERROR: jumlah menang tidak boleh negatif!")
+                data[idx].menang = 0
+            } else if kosong < data[idx].menang {
+                fmt.Println("ERROR: jumlah menang baru tidak boleh lebih kecil dari jumlah menang saat ini!")
+                fmt.Println("jumlah menang saat ini: ", data[idx].menang)
+                // Tidak mengubah nilai
+            } else {
+                data[idx].menang = kosong
             }
 
-            rank := (data[i].menang * 3) - (data[i].kalah * 2)
-            if rank >= 250 {
-                data[i].rank = "diamond"
-            } else if rank >= 200 {
-                data[i].rank = "platinum"
-            } else if rank >= 150 {
-                data[i].rank = "gold"
-            } else if rank >= 100 {
-                data[i].rank = "silver"
-            } else if rank >= 50 {
-                data[i].rank = "bronze"
-            } else {
-                data[i].rank = "unranked"
-            }
-            // Hitung winrate
-            total := data[i].menang + data[i].kalah
-            if total > 0 {
-                data[i].wr = (data[i].menang * 100) / total
-            } else {
-                data[i].wr = 0
-            }
+            fmt.Println()
 
-            fmt.Println("\n========== UPDATE BERHASIL ==========")
-            fmt.Printf("Winrate baru: %d %%\n", data[i].wr)
-            fmt.Printf("Rank baru: %s\n", data[i].rank)
-            fmt.Println("Data berhasil diupdate!")
-            
-            // Tampilkan data terbaru
-            fmt.Println("\n========== DATA TERBARU ==========")
-            fmt.Printf("Nickname: %s\n", data[i].nick)
-            fmt.Printf("ID: %d\n", data[i].id)
-            fmt.Printf("Menang: %d\n", data[i].menang)
-            fmt.Printf("Kalah: %d\n", data[i].kalah)
-            fmt.Printf("Winrate: %d %%\n", data[i].wr)
-            fmt.Printf("Rank: %s\n", data[i].rank)
-            fmt.Println("=================================")
-            break
+            if kosong2 < 0 {
+                fmt.Println("ERROR: jumlah kalah tidak boleh negatif!")
+                data[idx].kalah = 0
+            } else {
+                data[idx].kalah = kosong2
+            }
+        } else {
+            fmt.Println("ERROR: pilihan yang dimasukkan tidak sesuai!")
+            return
         }
-    }
 
-    if !ditemukan {
+        rank := (data[idx].menang * 3) - (data[idx].kalah * 2)
+        if rank >= 250 {
+            data[idx].rank = "diamond"
+        } else if rank >= 200 {
+            data[idx].rank = "platinum"
+        } else if rank >= 150 {
+            data[idx].rank = "gold"
+        } else if rank >= 100 {
+            data[idx].rank = "silver"
+        } else if rank >= 50 {
+            data[idx].rank = "bronze"
+        } else {
+            data[idx].rank = "unranked"
+        }
+        // Hitung winrate
+        total := data[idx].menang + data[idx].kalah
+        if total > 0 {
+            data[idx].wr = (data[idx].menang * 100) / total
+        } else {
+            data[idx].wr = 0
+        }
+
+        fmt.Println("\n========== UPDATE BERHASIL ==========")
+        fmt.Printf("Winrate baru: %d %%\n", data[idx].wr)
+        fmt.Printf("Rank baru: %s\n", data[idx].rank)
+        fmt.Println("Data berhasil diupdate!")
+
+        // Tampilkan data terbaru
+        fmt.Println("\n========== DATA TERBARU ==========")
+        fmt.Printf("Nickname: %s\n", data[idx].nick)
+        fmt.Printf("ID: %d\n", data[idx].id)
+        fmt.Printf("Menang: %d\n", data[idx].menang)
+        fmt.Printf("Kalah: %d\n", data[idx].kalah)
+        fmt.Printf("Winrate: %d %%\n", data[idx].wr)
+        fmt.Printf("Rank: %s\n", data[idx].rank)
+        fmt.Println("=================================")
+    } else {
         fmt.Printf("\nplayer dengan id %d tidak ditemukan\n", dicari)
     }
 }
@@ -279,77 +298,13 @@ func tampilsemua(n int, data tabPlayer) {
 
     fmt.Println("\n========== SEMUA DATA PLAYER ==========")
     fmt.Printf("Total data: %d player\n\n", n)
-    
-    // Buat salinan data untuk sorting
-    var temp tabPlayer
-    for i := 0; i < n; i++ {
-        temp[i] = data[i]
-    }
-    
-    // Sorting berdasarkan id (ascending)
-    for i := 0; i < n-1; i++ {
-        for j := i + 1; j < n; j++ {
-            if temp[i].id > temp[j].id {
-                temp[i], temp[j] = temp[j], temp[i]
-            }
-        }
-    }
-    
-    // Tampilkan data
+
+    // Tampilkan data (sudah terurut karena disorting di menu 4 atau saat tambah data)
     fmt.Println("No\tID\tNickname\tMenang\tKalah\tWinrate\tRank")
     fmt.Println("==========================================================")
     for i := 0; i < n; i++ {
-        fmt.Printf("%d || \t |id| %d || \t |nick| %s || \t |menang| %d|| \t |kalah| %d || \t |wr| %d%% || \t |rank| %s\n ", 
-            i+1, temp[i].id, temp[i].nick, temp[i].menang, temp[i].kalah, temp[i].wr, temp[i].rank)
+        fmt.Printf("%d || \t |id| %d || \t |nick| %s || \t |menang| %d|| \t |kalah| %d || \t |wr| %d%% || \t |rank| %s\n",
+            i+1, data[i].id, data[i].nick, data[i].menang, data[i].kalah, data[i].wr, data[i].rank)
     }
     fmt.Println("==========================================================")
-}
-
-// Fungsi tambahan: menghapus data berdasarkan id
-func hapusdata(n int, data *tabPlayer) int {
-    var dicari int
-    var ditemukan bool = false
-    var idx int
-
-    if n == 0 {
-        fmt.Println("\nbelum ada data yang bisa dihapus!")
-        return n
-    }
-
-    fmt.Println("\n========== HAPUS DATA ==========")
-    fmt.Print("masukkan id player yang akan dihapus: ")
-    fmt.Scan(&dicari)
-
-    for i := 0; i < n; i++ {
-        if dicari == data[i].id {
-            ditemukan = true
-            idx = i
-            break
-        }
-    }
-
-    if !ditemukan {
-        fmt.Printf("player dengan id %d tidak ditemukan\n", dicari)
-        return n
-    }
-
-    // Geser data ke kiri
-    for i := idx; i < n-1; i++ {
-        data[i] = data[i+1]
-    }
-
-    fmt.Printf("player dengan id %d berhasil dihapus!\n", dicari)
-    return n - 1
-}
-
-// Fungsi tambahan: update winrate otomatis setelah menambah menang/kalah
-func updateWinrate(n int, data *tabPlayer) {
-    for i := 0; i < n; i++ {
-        total := data[i].menang + data[i].kalah
-        if total > 0 {
-            data[i].wr = (data[i].menang * 100) / total
-        } else {
-            data[i].wr = 0
-        }
-    }
 }
